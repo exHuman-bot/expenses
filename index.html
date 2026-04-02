@@ -381,10 +381,81 @@
 </head>
 <body>
 
-<div class="stub" id="stub">
-  <div class="stub-icon">🔒</div>
-  <h2>Нет доступа</h2>
-  <p>Эта страница доступна только по ссылке с токеном.</p>
+<div class="stub" id="stub" style="position:relative; overflow:hidden; min-height:100vh; display:flex; align-items:center; justify-content:center;">
+
+  <!-- анимированная сетка на фоне -->
+  <canvas id="grid-canvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0.15;"></canvas>
+
+  <div style="position:relative; z-index:1; text-align:center; max-width:400px; padding: 2rem;">
+
+    <div style="font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 3rem; text-transform:uppercase;">
+      sys.error / 0x00000403
+    </div>
+
+    <div style="position:relative; margin-bottom: 2.5rem;">
+      <div style="font-family: var(--font-display); font-size: clamp(5rem, 18vw, 10rem); font-weight:700; letter-spacing:-0.06em; line-height:0.85; color: var(--text);">
+        НЕТ
+      </div>
+      <div style="font-family: var(--font-display); font-size: clamp(5rem, 18vw, 10rem); font-weight:700; letter-spacing:-0.06em; line-height:0.85; color: var(--accent); margin-top: -0.1em;">
+        ВХОДА
+      </div>
+    </div>
+
+    <div style="width: 40px; height: 1px; background: var(--border); margin: 0 auto 2rem;"></div>
+
+    <p style="font-size: 0.82rem; color: var(--muted); font-weight:300; line-height:1.8; letter-spacing:0.02em;">
+      Ты попал не туда.<br>
+      Или туда — но без ключа.<br>
+      <span style="color: var(--accent);">В любом случае: здесь ничего нет.</span>
+    </p>
+
+    <div style="margin-top: 3rem; font-family: var(--font-display); font-size: 0.6rem; color: var(--border); letter-spacing: 0.1em;">
+      UNAUTHORIZED · PRIVATE · RESTRICTED
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('grid-canvas');
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const step = 40;
+      ctx.strokeStyle = '#c8f135';
+      ctx.lineWidth = 0.5;
+
+      for (let x = 0; x < canvas.width + step; x += step) {
+        const wave = Math.sin((x / canvas.width) * Math.PI * 2 + t) * 8;
+        ctx.globalAlpha = 0.3 + Math.sin(x * 0.05 + t) * 0.2;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x + wave, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y < canvas.height + step; y += step) {
+        const wave = Math.sin((y / canvas.height) * Math.PI * 2 + t) * 8;
+        ctx.globalAlpha = 0.3 + Math.sin(y * 0.05 + t) * 0.2;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y + wave);
+        ctx.stroke();
+      }
+
+      t += 0.008;
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  </script>
 </div>
 
 <div id="app" style="display:none">
