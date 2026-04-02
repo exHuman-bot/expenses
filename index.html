@@ -426,7 +426,8 @@
 
   async function loadEntries() {
     try {
-      const res = await fetch(API);
+      const params = window.location.search;
+      const res = await fetch(API + params);
       entries = await res.json();
       render();
     } catch (e) {
