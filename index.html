@@ -320,6 +320,48 @@
   .cat-health { background: rgba(52,211,153,0.12); color: #34d399; }
   .cat-other  { background: rgba(148,163,184,0.12); color: #94a3b8; }
 
+  .expandable { cursor: pointer; }
+  .expandable:hover { background: var(--surface2); }
+
+  .expand-arrow {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-right: 4px;
+    display: inline-block;
+    width: 12px;
+  }
+
+  .count-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--muted);
+    margin-left: 6px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+  }
+
+  .sub-row {
+    background: var(--surface2);
+    border-left: 2px solid var(--border);
+  }
+
+  .sub-row:hover { background: #26262e; }
+
+  .sub-desc {
+    font-size: 0.8rem !important;
+    color: var(--muted) !important;
+    font-weight: 400 !important;
+    padding-left: 1.2rem;
+  }
+
+  .sub-amount {
+    font-size: 0.85rem !important;
+    opacity: 0.7;
+  }
+
   @media (max-width: 600px) {
     .form-grid { grid-template-columns: 1fr 1fr; }
     .form-row  { grid-template-columns: 1fr 1fr; }
@@ -497,6 +539,10 @@
     return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
   }
 
+  function groupKey(e) {
+    return e.desc.toLowerCase() + '||' + e.cat + '||' + e.type;
+  }
+
   async function addEntry() {
     const desc = document.getElementById('f-desc').value.trim();
     const amount = parseFloat(document.getElementById('f-amount').value);
@@ -509,19 +555,8 @@
     const btn = document.getElementById('add-btn');
     btn.disabled = true;
 
-    // Ищем существующую запись с таким же описанием, категорией и типом
-    const existing = entries.find(e =>
-      e.desc.toLowerCase() === desc.toLowerCase() &&
-      e.cat === cat &&
-      e.type === type
-    );
-
-    if (existing) {
-      existing.amount += amount;
-      existing.date = date; // обновляем дату на последнюю
-    } else {
-      entries.unshift({ id: Date.now(), desc, amount, date, cat, type, method });
-    }
+    // Каждая запись хранится отдельно
+    entries.unshift({ id: Date.now(), desc, amount, date, cat, type, method });
 
     render();
     await saveEntries();
@@ -535,6 +570,15 @@
     entries = entries.filter(e => e.id !== id);
     render();
     await saveEntries();
+  }
+
+  // Запоминаем какие группы раскрыты
+  const expanded = new Set();
+
+  function toggleGroup(key) {
+    if (expanded.has(key)) expanded.delete(key);
+    else expanded.add(key);
+    render();
   }
 
   function setFilter(f, btn) {
@@ -566,22 +610,69 @@
       return;
     }
 
-    list.innerHTML = filtered.map(e => {
-      const d = new Date(e.date + 'T00:00:00');
+    // Группируем
+    const groupMap = new Map();
+    filtered.forEach(e => {
+      const key = groupKey(e);
+      if (!groupMap.has(key)) groupMap.set(key, []);
+      groupMap.get(key).push(e);
+    });
+
+    let html = '';
+    groupMap.forEach((items, key) => {
+      const first = items[0];
+      const total = items.reduce((s, e) => s + e.amount, 0);
+      const catClass = CAT_CLASS[first.cat] || 'cat-other';
+      const isExpanded = expanded.has(key);
+      const multiple = items.length > 1;
+      const lastDate = items.reduce((latest, e) => e.date > latest ? e.date : latest, '');
+      const d = new Date(lastDate + 'T00:00:00');
       const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-      const catClass = CAT_CLASS[e.cat] || 'cat-other';
-      return `<div class="entry">
+
+      // Строка группы
+      html += `<div class="entry group-row ${multiple ? 'expandable' : ''}" ${multiple ? `onclick="toggleGroup('${key.replace(/'/g, "\\'")}')"` : ''}>
         <div>
-          <div class="entry-desc">${e.desc}</div>
-          <div class="entry-date">${dateStr} · ${e.method}</div>
+          <div class="entry-desc">
+            ${multiple ? `<span class="expand-arrow">${isExpanded ? '▾' : '▸'}</span>` : ''}
+            ${first.desc}
+            ${multiple ? `<span class="count-badge">${items.length}</span>` : ''}
+          </div>
+          <div class="entry-date">${dateStr}</div>
         </div>
-        <div><span class="cat-tag ${catClass}">${e.cat}</span></div>
-        <div class="entry-amount ${e.type === 'income' ? 'pos' : 'neg'}">
-          ${e.type === 'income' ? '+' : '-'}${fmt(e.amount)}
+        <div><span class="cat-tag ${catClass}">${first.cat}</span></div>
+        <div class="entry-amount ${first.type === 'income' ? 'pos' : 'neg'}">
+          ${first.type === 'income' ? '+' : '-'}${fmt(total)}
         </div>
-        <button class="del-btn" onclick="deleteEntry(${e.id})">×</button>
+        <div></div>
       </div>`;
-    }).join('');
+
+      // Подстроки если раскрыто
+      if (multiple && isExpanded) {
+        items.forEach(e => {
+          const sd = new Date(e.date + 'T00:00:00');
+          const sdStr = sd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+          html += `<div class="entry sub-row">
+            <div>
+              <div class="entry-desc sub-desc">${sdStr} · ${e.method}</div>
+            </div>
+            <div></div>
+            <div class="entry-amount ${e.type === 'income' ? 'pos' : 'neg'} sub-amount">
+              ${e.type === 'income' ? '+' : '-'}${fmt(e.amount)}
+            </div>
+            <button class="del-btn" onclick="event.stopPropagation(); deleteEntry(${e.id})">×</button>
+          </div>`;
+        });
+      }
+
+      // Если одна запись — кнопка удаления на самой строке
+      if (!multiple) {
+        const e = items[0];
+        // Заменяем пустой последний div на кнопку
+        html = html.replace(/<div><\/div>\n      <\/div>$/, `<button class="del-btn" onclick="deleteEntry(${e.id})">×</button>\n      </div>`);
+      }
+    });
+
+    list.innerHTML = html;
   }
 
   document.getElementById('f-desc').addEventListener('keydown', e => {
