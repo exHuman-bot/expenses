@@ -30,6 +30,26 @@
     padding: 2rem 1rem 4rem;
   }
 
+  .stub {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 2rem;
+  }
+  .stub-icon { font-size: 3rem; opacity: 0.15; margin-bottom: 0.5rem; }
+  .stub h2 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--muted);
+  }
+  .stub p { font-size: 0.85rem; color: var(--muted); font-weight: 300; }
+
   header {
     max-width: 760px;
     margin: 0 auto 2.5rem;
@@ -312,6 +332,14 @@
 </head>
 <body>
 
+<div class="stub" id="stub">
+  <div class="stub-icon">🔒</div>
+  <h2>Нет доступа</h2>
+  <p>Эта страница доступна только по ссылке с токеном.</p>
+</div>
+
+<div id="app" style="display:none">
+
 <header>
   <h1>Траты</h1>
   <span id="month-label"></span>
@@ -404,11 +432,22 @@
 </div>
 
 <script>
+  const VALID_TOKEN = 'fox'; // ← поменяй на любую строку
   const API = 'api.php';
   const CAT_CLASS = {
     'Еда': 'cat-food', 'Транспорт': 'cat-trans', 'Жильё': 'cat-home',
     'Развлечения': 'cat-fun', 'Здоровье': 'cat-health', 'Прочее': 'cat-other'
   };
+
+  // Проверяем токен из URL (?token=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const hasAccess = token === VALID_TOKEN;
+
+  if (hasAccess) {
+    document.getElementById('stub').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }
 
   let entries = [];
   let filter = 'all';
@@ -425,9 +464,9 @@
   }
 
   async function loadEntries() {
+    if (!hasAccess) return;
     try {
-      const params = window.location.search;
-      const res = await fetch(API + params);
+      const res = await fetch(API + '?token=' + token);
       entries = await res.json();
       render();
     } catch (e) {
@@ -437,9 +476,10 @@
   }
 
   async function saveEntries() {
+    if (!hasAccess) return;
     setStatus('Сохранение...', 'saving');
     try {
-      await fetch(API, {
+      await fetch(API + '?token=' + token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entries)
@@ -548,5 +588,7 @@
 
   loadEntries();
 </script>
+</div><!-- /app -->
+
 </body>
 </html>
