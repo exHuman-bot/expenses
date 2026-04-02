@@ -445,8 +445,10 @@
   const hasAccess = token === VALID_TOKEN;
 
   if (hasAccess) {
-    document.getElementById('stub').style.display = 'none';
+    document.getElementById('stub').remove();
     document.getElementById('app').style.display = 'block';
+  } else {
+    document.getElementById('app').remove();
   }
 
   let entries = [];
