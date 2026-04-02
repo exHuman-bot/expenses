@@ -40,6 +40,13 @@
     gap: 1rem;
     padding: 2rem;
   }
+  .total-sum {
+    border-bottom: 2px solid rebeccapurple;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    padding: 12px 41px;
+  }
   .stub-icon { font-size: 3rem; opacity: 0.15; margin-bottom: 0.5rem; }
   .stub h2 {
     font-family: var(--font-display);
@@ -468,6 +475,7 @@
       <span style="text-align:right;padding-right:0.5rem">Сумма</span>
       <span></span>
     </div>
+    <div class="total-sum">Суммарно <div class="entry-amount neg">-<span class="sum">0</span> ₽</div></div>
     <div id="entries-list"><div class="empty"><span>○</span>Загрузка...</div></div>
   </div>
 
@@ -619,9 +627,11 @@
     });
 
     let html = '';
+    let totalAll = 0;
     groupMap.forEach((items, key) => {
       const first = items[0];
       const total = items.reduce((s, e) => s + e.amount, 0);
+      totalAll += total;
       const catClass = CAT_CLASS[first.cat] || 'cat-other';
       const isExpanded = expanded.has(key);
       const multiple = items.length > 1;
@@ -671,7 +681,8 @@
         html = html.replace(/<div><\/div>\n      <\/div>$/, `<button class="del-btn" onclick="deleteEntry(${e.id})">×</button>\n      </div>`);
       }
     });
-
+  console.log(totalAll)
+    document.querySelector('.total-sum .sum').textContent = totalAll;
     list.innerHTML = html;
   }
 
