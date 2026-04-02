@@ -466,7 +466,20 @@
     const btn = document.getElementById('add-btn');
     btn.disabled = true;
 
-    entries.unshift({ id: Date.now(), desc, amount, date, cat, type, method });
+    // Ищем существующую запись с таким же описанием, категорией и типом
+    const existing = entries.find(e =>
+      e.desc.toLowerCase() === desc.toLowerCase() &&
+      e.cat === cat &&
+      e.type === type
+    );
+
+    if (existing) {
+      existing.amount += amount;
+      existing.date = date; // обновляем дату на последнюю
+    } else {
+      entries.unshift({ id: Date.now(), desc, amount, date, cat, type, method });
+    }
+
     render();
     await saveEntries();
 
