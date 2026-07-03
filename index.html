@@ -301,89 +301,94 @@
   .add-btn:active { transform: translateY(0); opacity: 0.9; }
   .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ---------- Category chart ---------- */
+  /* ---------- Category chart (needle/bar) ---------- */
   .chart-card {
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.4rem;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 1.75rem;
-    align-items: center;
   }
 
   .chart-card-title {
     font-size: 0.95rem;
     font-weight: 600;
-    margin-bottom: 1rem;
-    grid-column: 1 / -1;
   }
 
-  .donut {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    position: relative;
-    flex-shrink: 0;
+  .chart-total {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    margin-bottom: 1.5rem;
   }
 
-  .donut::after {
-    content: '';
-    position: absolute;
-    inset: 20px;
-    border-radius: 50%;
-    background: var(--surface);
+  .chart-total b { color: var(--text); font-size: 1rem; font-weight: 600; }
+
+  .needle-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.1rem;
+    height: 170px;
+    padding: 0 0.25rem;
+    border-bottom: 1px solid var(--border);
   }
 
-  .donut-center {
-    position: absolute;
-    inset: 20px;
+  .needle {
+    flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    z-index: 1;
+    justify-content: flex-end;
+    min-width: 0;
   }
 
-  .donut-center .val {
+  .needle-value {
     font-family: var(--font-mono);
-    font-size: 1.05rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    white-space: nowrap;
   }
 
-  .donut-center .lbl {
-    font-size: 0.68rem;
-    color: var(--muted);
-    margin-top: 2px;
+  .needle-bar {
+    width: 10px;
+    border-radius: 5px 5px 2px 2px;
+    min-height: 4px;
+    transition: height 0.4s ease;
   }
 
-  .legend {
-    display: grid;
-    gap: 0.55rem;
-  }
-
-  .legend-item {
+  .needle-labels {
     display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.85rem;
+    gap: 1.1rem;
+    padding: 0 0.25rem;
+    margin-top: 0.6rem;
   }
 
-  .legend-item .dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  .needle-label-col {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
   }
 
-  .legend-item .name { color: var(--text); flex: 1; }
-  .legend-item .pct { color: var(--muted); font-family: var(--font-mono); font-size: 0.8rem; margin-right: 0.5rem; }
-  .legend-item .amt { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); }
+  .needle-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .needle-pct {
+    font-size: 0.66rem;
+    color: var(--muted-2);
+    font-family: var(--font-mono);
+    margin-top: 1px;
+  }
 
   @media (max-width: 640px) {
-    .chart-card { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-    .legend { width: 100%; }
+    .needle-chart, .needle-labels { gap: 0.5rem; }
+    .needle-value { font-size: 0.62rem; }
+    .needle-label { font-size: 0.62rem; }
   }
 
   /* ---------- Filters ---------- */
@@ -606,13 +611,9 @@
 
   <div class="chart-card">
     <div class="chart-card-title">По категориям</div>
-    <div class="donut" id="donut">
-      <div class="donut-center">
-        <div class="val" id="donut-total">0 ₽</div>
-        <div class="lbl">расходы</div>
-      </div>
-    </div>
-    <div class="legend" id="legend"></div>
+    <div class="chart-total"><b id="chart-total">0 ₽</b> расходы за период</div>
+    <div class="needle-chart" id="needle-chart"></div>
+    <div class="needle-labels" id="needle-labels"></div>
   </div>
 
   <div class="filter-bar">
@@ -759,40 +760,41 @@
     CATEGORIES.forEach(c => sums[c] = 0);
     expenseEntries.forEach(e => sums[e.cat] = (sums[e.cat] || 0) + e.amount);
 
-    document.getElementById('donut-total').textContent = fmt(totalExpense);
+    document.getElementById('chart-total').textContent = fmt(totalExpense);
 
-    const donut = document.getElementById('donut');
-    const legend = document.getElementById('legend');
+    const chart = document.getElementById('needle-chart');
+    const labels = document.getElementById('needle-labels');
 
     if (totalExpense === 0) {
-      donut.style.background = 'conic-gradient(var(--surface-2) 0deg 360deg)';
-      legend.innerHTML = '<div class="legend-item"><span class="name" style="color:var(--muted)">Нет расходов за период</span></div>';
+      chart.innerHTML = '<div class="needle" style="color:var(--muted);justify-content:center">Нет расходов за период</div>';
+      labels.innerHTML = '';
       return;
     }
 
-    let angle = 0;
-    const stops = [];
-    const legendItems = [];
+    const maxAmt = Math.max(...CATEGORIES.map(c => sums[c]));
+    let bars = '';
+    let cols = '';
     CATEGORIES.forEach(cat => {
       const amt = sums[cat];
       if (amt <= 0) return;
       const share = amt / totalExpense;
-      const start = angle;
-      const end = angle + share * 360;
-      stops.push(`${CAT_COLOR[cat]} ${start}deg ${end}deg`);
-      angle = end;
-      legendItems.push(`
-        <div class="legend-item">
-          <span class="dot" style="background:${CAT_COLOR[cat]}"></span>
-          <span class="name">${cat}</span>
-          <span class="pct">${Math.round(share * 100)}%</span>
-          <span class="amt">${fmt(amt)}</span>
+      const heightPct = Math.max((amt / maxAmt) * 100, 3);
+      bars += `
+        <div class="needle">
+          <div class="needle-value">${fmt(amt).replace(' ₽', '')}</div>
+          <div class="needle-bar" style="height:${heightPct}%;background:${CAT_COLOR[cat]}"></div>
         </div>
-      `);
+      `;
+      cols += `
+        <div class="needle-label-col">
+          <div class="needle-label">${cat}</div>
+          <div class="needle-pct">${Math.round(share * 100)}%</div>
+        </div>
+      `;
     });
 
-    donut.style.background = `conic-gradient(${stops.join(', ')})`;
-    legend.innerHTML = legendItems.join('');
+    chart.innerHTML = bars;
+    labels.innerHTML = cols;
   }
 
   function render() {
