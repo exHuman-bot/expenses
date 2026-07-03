@@ -1,673 +1,692 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Бюджет</title>
-<style>
-  :root {
-    --bg: #17171a;
-    --surface: #1d1d20;
-    --surface-2: #232326;
-    --border: #313136;
-    --text: #dcdad4;
-    --muted: #8a8983;
-    --muted-2: #5c5b57;
-    --accent: #b9975a;
-    --red: #b2564b;
-    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Твоё Имя] — Software Engineer</title>
+  <meta name="description" content="[Твоё Имя] — разработчик. Портфолио, опыт, проекты.">
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --surface-2: #111111;
+      --border: #262626;
+      --border-2: #3a3a3a;
+      --text: #e8e8e8;
+      --muted: #7a7a7a;
+      --muted-2: #4a4a4a;
+      --accent: #39ff8f;
+      --accent-dim: #1f8a52;
+      --font: 'JetBrains Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    min-height: 100vh;
-    padding: 2.5rem 1.25rem 5rem;
-    line-height: 1.4;
-  }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
 
-  ::selection { background: rgba(185,151,90,0.25); color: var(--text); }
+    ::selection { background: var(--accent); color: #000; }
 
-  /* ---------- Access stub ---------- */
-  .stub {
-    min-height: calc(100vh - 5rem);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    a { color: inherit; text-decoration: none; }
 
-  .stub-inner {
-    text-align: left;
-    max-width: 380px;
-    padding: 2rem;
-    border-left: 2px solid var(--border);
-  }
+    .container { max-width: 1040px; margin: 0 auto; padding: 0 1.5rem; }
 
-  .stub-tag {
-    font-size: 0.72rem;
-    color: var(--muted-2);
-    margin-bottom: 1.25rem;
-    font-family: var(--font-mono);
-  }
+    /* ---------- Matrix rain background ---------- */
+    #matrix {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      opacity: 0.5;
+    }
 
-  .stub-title {
-    font-weight: 600;
-    font-size: 2rem;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
-    color: var(--text);
-  }
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: repeating-linear-gradient(
+              0deg,
+              rgba(0,0,0,0.15) 0px,
+              rgba(0,0,0,0.15) 1px,
+              transparent 1px,
+              transparent 3px
+      );
+      pointer-events: none;
+    }
 
-  .stub p {
-    margin-top: 1.25rem;
-    font-size: 0.9rem;
-    color: var(--muted);
-    line-height: 1.7;
-  }
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(ellipse at 50% 0%, transparent 30%, #000 92%);
+      pointer-events: none;
+    }
 
-  /* ---------- Layout ---------- */
-  header {
-    max-width: 760px;
-    margin: 0 auto 2rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid var(--border);
-  }
+    /* ---------- Nav ---------- */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.75);
+      border-bottom: 1px solid var(--border);
+    }
 
-  header h1 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+    }
 
-  header .sub {
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
+    .logo {
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: -0.01em;
+    }
 
-  #save-status {
-    margin-left: auto;
-    font-size: 0.78rem;
-    color: var(--muted-2);
-  }
+    .logo span { color: var(--accent); }
 
-  #save-status.error { color: var(--red); }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
 
-  .main {
-    max-width: 760px;
-    margin: 0 auto;
-    display: grid;
-    gap: 1.75rem;
-  }
+    .nav-links a::before { content: '#'; color: var(--accent); margin-right: 0.2rem; }
+    .nav-links a:hover { color: var(--text); }
 
-  /* ---------- Stats ---------- */
-  .stats {
-    display: flex;
-    gap: 0;
-    border: 1px solid var(--border);
-  }
+    .nav-cta {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent-dim);
+      padding: 0.5rem 1.2rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
 
-  .stat {
-    flex: 1;
-    padding: 0.95rem 1.2rem;
-    border-left: 1px solid var(--border);
-  }
+    .nav-cta:hover { background: var(--accent); color: #000; }
 
-  .stat:first-child { border-left: none; }
+    @media (max-width: 720px) {
+      .nav-links { display: none; }
+    }
 
-  .stat-label {
-    font-size: 0.76rem;
-    color: var(--muted);
-    margin-bottom: 0.35rem;
-  }
+    /* ---------- Hero ---------- */
+    .hero {
+      padding: 6rem 0 5rem;
+    }
 
-  .stat-value {
-    font-family: var(--font-mono);
-    font-size: 1.25rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    font-variant-numeric: tabular-nums;
-  }
+    .terminal {
+      border: 1px solid var(--border-2);
+      background: rgba(10,10,10,0.85);
+      max-width: 640px;
+      margin: 0 auto 3rem;
+      box-shadow: 0 0 60px -20px rgba(57,255,143,0.15);
+    }
 
-  .stat.income .stat-value { color: var(--text); }
-  .stat.expense .stat-value { color: var(--text); }
-  .stat.balance .stat-value { color: var(--accent); }
-  .stat.balance.neg .stat-value { color: var(--red); }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
 
-  /* ---------- Form card ---------- */
-  .form-card {
-    border: 1px solid var(--border);
-    padding: 1.25rem;
-  }
+    .terminal-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--muted-2);
+    }
 
-  .form-card-title {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 1rem;
-  }
+    .terminal-title {
+      margin-left: 0.6rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
 
-  .form-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 0.65rem;
-    margin-bottom: 0.65rem;
-  }
+    .terminal-body {
+      padding: 1.3rem 1.5rem 1.6rem;
+      font-size: 0.88rem;
+    }
 
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 0.65rem;
-    align-items: end;
-  }
+    .terminal-line { color: var(--muted); margin-bottom: 0.5rem; }
+    .terminal-line .prompt { color: var(--accent); }
+    .terminal-out { color: var(--text); margin-bottom: 0.9rem; padding-left: 1.1rem; }
 
-  .field label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-bottom: 0.35rem;
-  }
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
 
-  .field input,
-  .field select {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 0.55rem 0.7rem;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 0.9rem;
-    transition: border-color 0.1s;
-    -webkit-appearance: none;
-  }
+    @keyframes blink { 50% { opacity: 0; } }
 
-  .field input::placeholder { color: var(--muted-2); }
+    .hero-title {
+      text-align: center;
+      font-size: clamp(2rem, 5.5vw, 3.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
 
-  .field input:focus,
-  .field select:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
+    .hero-title .accent-text { color: var(--accent); }
 
-  .field select option { background: var(--surface); }
+    .hero-sub {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 2.4rem;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
 
-  .type-toggle {
-    display: flex;
-    border: 1px solid var(--border);
-  }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
 
-  .type-toggle button {
-    flex: 1;
-    background: none;
-    border: none;
-    border-left: 1px solid var(--border);
-    color: var(--muted);
-    font-family: var(--font);
-    font-size: 0.85rem;
-    padding: 0.55rem 0.4rem;
-    cursor: pointer;
-  }
+    .btn {
+      padding: 0.85rem 1.7rem;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border-radius: 0;
+      font-family: var(--font);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
 
-  .type-toggle button:first-child { border-left: none; }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: 1px solid var(--accent);
+    }
 
-  .type-toggle button.active {
-    background: var(--surface-2);
-    color: var(--text);
-  }
+    .btn-primary:hover { background: transparent; color: var(--accent); }
 
-  .add-btn {
-    background: var(--accent);
-    color: #1a1509;
-    border: none;
-    padding: 0 1.3rem;
-    height: 38px;
-    font-family: var(--font);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border-2);
+    }
 
-  .add-btn:hover { background: #cba76a; }
-  .add-btn:active { opacity: 0.85; }
-  .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* ---------- Filters ---------- */
-  .filter-bar {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border: 1px solid var(--border);
+      max-width: 640px;
+      margin: 0 auto;
+    }
 
-  .filter-btn {
-    background: none;
-    border: 1px solid var(--border);
-    padding: 0.35rem 0.85rem;
-    color: var(--muted);
-    font-family: var(--font);
-    font-size: 0.82rem;
-    cursor: pointer;
-  }
+    .hero-stat {
+      flex: 1;
+      text-align: center;
+      padding: 1.1rem 0.5rem;
+      border-left: 1px solid var(--border);
+    }
 
-  .filter-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+    .hero-stat:first-child { border-left: none; }
 
-  .filter-btn:hover:not(.active) { border-color: var(--muted-2); color: var(--text); }
+    .hero-stat .num {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
 
-  /* ---------- Entries ---------- */
-  .entries-card {
-    border: 1px solid var(--border);
-  }
+    .hero-stat .lbl {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
 
-  .entries-header {
-    display: grid;
-    grid-template-columns: 1fr 110px 110px 30px;
-    padding: 0.6rem 1.1rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.75rem;
-    color: var(--muted-2);
-  }
+    /* ---------- Section shared ---------- */
+    section { padding: 5rem 0; }
 
-  .total-sum {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.7rem 1.1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
+    .section-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      margin-bottom: 0.6rem;
+    }
 
-  .total-sum .entry-amount { padding-right: 0; font-size: 0.95rem; }
+    .section-tag::before { content: '// '; color: var(--muted-2); }
 
-  .entry {
-    display: grid;
-    grid-template-columns: 1fr 110px 110px 30px;
-    padding: 0.75rem 1.1rem;
-    border-bottom: 1px solid var(--border);
-    align-items: center;
-  }
+    .section-title {
+      font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
 
-  .entry:last-child { border-bottom: none; }
-  .entry:hover { background: var(--surface); }
+    .section-desc {
+      color: var(--muted);
+      max-width: 560px;
+      margin-bottom: 3rem;
+      font-size: 0.92rem;
+    }
 
-  .entry-desc { font-weight: 500; font-size: 0.92rem; }
-  .entry-date { font-size: 0.78rem; color: var(--muted-2); margin-top: 2px; }
+    /* ---------- Skills ---------- */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
 
-  .cat-tag {
-    font-size: 0.78rem;
-    color: var(--muted);
-  }
+    .skill-card {
+      background: var(--surface);
+      padding: 1.4rem;
+      transition: background 0.2s;
+    }
 
-  .entry-amount {
-    font-family: var(--font-mono);
-    font-size: 0.92rem;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-    padding-right: 0.5rem;
-  }
+    .skill-card:hover { background: var(--surface-2); }
 
-  .entry-amount.pos { color: var(--text); }
-  .entry-amount.neg { color: var(--muted); }
+    .skill-card .tag {
+      font-size: 0.72rem;
+      color: var(--accent);
+      margin-bottom: 0.7rem;
+      display: block;
+    }
 
-  .del-btn {
-    width: 26px;
-    height: 26px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted-2);
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
-  }
+    .skill-card h3 { font-size: 1rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .skill-card p { font-size: 0.82rem; color: var(--muted); }
 
-  .del-btn:hover { color: var(--red); }
+    /* ---------- Projects ---------- */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
 
-  .empty {
-    padding: 2.5rem 2rem;
-    text-align: center;
-    color: var(--muted-2);
-    font-size: 0.88rem;
-  }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s, transform 0.2s;
+    }
 
-  .expandable { cursor: pointer; }
+    .project-card:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
 
-  .expand-arrow {
-    font-size: 0.7rem;
-    color: var(--muted-2);
-    display: inline-block;
-    width: 10px;
-  }
+    .project-head {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
 
-  .count-badge {
-    font-size: 0.72rem;
-    color: var(--muted-2);
-  }
+    .project-head .terminal-dot { background: var(--muted-2); }
+    .project-head .path { margin-left: 0.5rem; font-size: 0.72rem; color: var(--muted); }
 
-  .sub-row { background: var(--surface); }
+    .project-body { padding: 1.3rem; display: flex; flex-direction: column; gap: 0.9rem; flex: 1; }
 
-  .sub-desc {
-    font-size: 0.82rem !important;
-    color: var(--muted) !important;
-    font-weight: 400 !important;
-    padding-left: 1.2rem;
-  }
+    .project-card h3 { font-size: 1.05rem; }
+    .project-card h3::before { content: '$ '; color: var(--accent); }
+    .project-card p { color: var(--muted); font-size: 0.85rem; flex: 1; }
 
-  .sub-amount { opacity: 0.8; }
+    .project-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
 
-  @media (max-width: 640px) {
-    body { padding: 1.5rem 0.9rem 4rem; }
-    .form-grid { grid-template-columns: 1fr 1fr; }
-    .form-row  { grid-template-columns: 1fr 1fr; }
-    .stats     { flex-wrap: wrap; }
-    .stat      { min-width: 33%; border-bottom: 1px solid var(--border); }
-    .entries-header { display: none; }
-    .entry { grid-template-columns: 1fr auto 28px; padding: 0.7rem 0.9rem; }
-    .entry .cat-col { display: none; }
-    .total-sum { padding: 0.6rem 0.9rem; }
-  }
-</style>
+    .chip {
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+    }
+
+    .project-link {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .project-link:hover { text-decoration: underline; }
+
+    /* ---------- Timeline ---------- */
+    .timeline {
+      display: grid;
+      gap: 0;
+      border-left: 1px solid var(--border-2);
+      margin-left: 0.5rem;
+    }
+
+    .tl-item {
+      position: relative;
+      padding: 0 0 2.2rem 2rem;
+    }
+
+    .tl-item:last-child { padding-bottom: 0; }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 9px;
+      height: 9px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 10px var(--accent);
+    }
+
+    .tl-period {
+      font-size: 0.76rem;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    .tl-item h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+    .tl-item .company { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .tl-item ul { padding-left: 1.1rem; color: var(--muted); font-size: 0.86rem; display: grid; gap: 0.3rem; }
+    .tl-item li::marker { color: var(--accent); }
+
+    /* ---------- CTA ---------- */
+    .cta {
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      padding: 4rem 2rem;
+    }
+
+    .cta h2 {
+      font-size: clamp(1.6rem, 3.6vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .cta h2 .accent-text { color: var(--accent); }
+
+    .cta p { color: var(--muted); max-width: 480px; margin: 0 auto 2rem; font-size: 0.92rem; }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .contact-links a {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.55rem 1.1rem;
+      font-size: 0.84rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .contact-links a:hover { border-color: var(--accent); color: var(--accent); }
+
+    footer {
+      text-align: center;
+      padding: 2.5rem 0;
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ---------- Reveal on scroll ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---------- Placeholder note (remove after editing) ---------- */
+    .edit-note {
+      max-width: 1040px;
+      margin: 1rem auto 0;
+      padding: 0.9rem 1.5rem;
+      background: var(--surface);
+      border: 1px dashed var(--muted-2);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .edit-note b { color: var(--accent); }
+  </style>
 </head>
 <body>
 
-<div class="stub" id="stub">
-  <div class="stub-inner">
-    <div class="stub-tag">401</div>
-    <div class="stub-title">Нет доступа</div>
-    <p>Эта страница только для двоих. Если у тебя нет ссылки с ключом — здесь действительно ничего нет.</p>
-  </div>
+<canvas id="matrix"></canvas>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+
+<div class="edit-note">
+  <b>//</b> Это шаблон. Замени все [плейсхолдеры] на свои данные (имя, стек, проекты, опыт, контакты) и удали этот блок перед публикацией.
 </div>
 
-<div id="app" style="display:none">
+<nav>
+  <div class="container">
+    <div class="logo">[имя]<span>@dev</span></div>
+    <div class="nav-links">
+      <a href="#skills">skills</a>
+      <a href="#projects">projects</a>
+      <a href="#experience">experience</a>
+      <a href="#contact">contact</a>
+    </div>
+    <a class="nav-cta" href="#contact">./hire_me</a>
+  </div>
+</nav>
 
-<header>
-  <h1>Саша + Альюина</h1>
-  <span class="sub" id="month-label"></span>
-  <span id="save-status"></span>
+<header class="hero container">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
+      <span class="terminal-title">~/[имя]/whoami</span>
+    </div>
+    <div class="terminal-body">
+      <div class="terminal-line"><span class="prompt">$</span> whoami</div>
+      <div class="terminal-out">[Твоё Имя] — [Fullstack / Backend / Frontend] Engineer</div>
+      <div class="terminal-line"><span class="prompt">$</span> cat status.txt</div>
+      <div class="terminal-out">open_to_work: true<span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <h1 class="hero-title">Код, который<br>доезжает до <span class="accent-text">продакшена</span></h1>
+  <p class="hero-sub">[Стек, напр. Fullstack-разработчик]. Пишу быстрый, надёжный код без лишних слов. Ниже — что я уже сделал, и что могу сделать для вашей команды.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="#contact">Хочу нанять →</a>
+    <a class="btn btn-ghost" href="#projects">Смотреть проекты</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">[3+]</div><div class="lbl">года опыта</div></div>
+    <div class="hero-stat"><div class="num">[12]</div><div class="lbl">проектов в проде</div></div>
+    <div class="hero-stat"><div class="num">[0]</div><div class="lbl">пропущенных дедлайнов</div></div>
+  </div>
 </header>
 
-<div class="main">
-
-  <div class="stats">
-    <div class="stat income">
-      <div class="stat-label">Доходы</div>
-      <div class="stat-value" id="s-income">0 ₽</div>
-    </div>
-    <div class="stat expense">
-      <div class="stat-label">Расходы</div>
-      <div class="stat-value" id="s-expense">0 ₽</div>
-    </div>
-    <div class="stat balance" id="s-balance-card">
-      <div class="stat-label">Баланс</div>
-      <div class="stat-value" id="s-balance">0 ₽</div>
-    </div>
+<section id="skills" class="container reveal">
+  <div class="section-tag">stack</div>
+  <h2 class="section-title">Технологии и сильные стороны</h2>
+  <p class="section-desc">Замени карточки на свои технологии — оставь только то, чем реально владеешь уверенно.</p>
+  <div class="skills-grid">
+    <div class="skill-card"><span class="tag">01</span><h3>[Frontend]</h3><p>[React, TypeScript, современный CSS — опиши уровень и подход]</p></div>
+    <div class="skill-card"><span class="tag">02</span><h3>[Backend]</h3><p>[Node.js / Python / Go — API, базы данных, интеграции]</p></div>
+    <div class="skill-card"><span class="tag">03</span><h3>[Инфраструктура]</h3><p>[Docker, CI/CD, облако — что настраивал(а) сам(а)]</p></div>
+    <div class="skill-card"><span class="tag">04</span><h3>[Архитектура]</h3><p>[Проектирование систем, паттерны, масштабирование]</p></div>
+    <div class="skill-card"><span class="tag">05</span><h3>[Продукт]</h3><p>[Работа с требованиями, коммуникация с бизнесом]</p></div>
+    <div class="skill-card"><span class="tag">06</span><h3>[Ещё сильная сторона]</h3><p>[То, что выделяет тебя среди других кандидатов]</p></div>
   </div>
+</section>
 
-  <div class="form-card">
-    <div class="form-card-title">Новая запись</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Описание</label>
-        <input type="text" id="f-desc" placeholder="Продукты, кафе, зарплата...">
-      </div>
-      <div class="field">
-        <label>Сумма, ₽</label>
-        <input type="number" id="f-amount" placeholder="0" min="0">
-      </div>
-      <div class="field">
-        <label>Дата</label>
-        <input type="date" id="f-date">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="field">
-        <label>Категория</label>
-        <select id="f-cat">
-          <option value="Еда">Еда</option>
-          <option value="Транспорт">Транспорт</option>
-          <option value="Жильё">Жильё</option>
-          <option value="Развлечения">Развлечения</option>
-          <option value="Здоровье">Здоровье</option>
-          <option value="Прочее">Прочее</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Тип</label>
-        <div class="type-toggle">
-          <button type="button" class="active" id="type-expense" onclick="setType('expense')">Расход</button>
-          <button type="button" id="type-income" onclick="setType('income')">Доход</button>
+<section id="projects" class="container reveal">
+  <div class="section-tag">portfolio</div>
+  <h2 class="section-title">Проекты, которыми горжусь</h2>
+  <p class="section-desc">Замени на реальные кейсы: задача, вклад, результат в цифрах.</p>
+  <div class="projects-grid">
+    <div class="project-card">
+      <div class="project-head"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="path">project-1</span></div>
+      <div class="project-body">
+        <h3>[Название проекта 1]</h3>
+        <p>[Кратко: какую проблему решал проект и в чём был твой вклад. Идеально — с результатом: "сократил время загрузки на 40%"].</p>
+        <div class="project-stack">
+          <span class="chip">react</span><span class="chip">node.js</span><span class="chip">postgres</span>
         </div>
+        <a class="project-link" href="[ссылка на GitHub/демо]">git clone →</a>
       </div>
-      <div class="field">
-        <label>Метод</label>
-        <select id="f-method">
-          <option value="Карта">Карта</option>
-          <option value="Наличные">Наличные</option>
-          <option value="Перевод">Перевод</option>
-        </select>
+    </div>
+    <div class="project-card">
+      <div class="project-head"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="path">project-2</span></div>
+      <div class="project-body">
+        <h3>[Название проекта 2]</h3>
+        <p>[Опиши задачу, роль и измеримый результат — рекрутёры любят цифры].</p>
+        <div class="project-stack">
+          <span class="chip">python</span><span class="chip">fastapi</span><span class="chip">docker</span>
+        </div>
+        <a class="project-link" href="[ссылка]">git clone →</a>
       </div>
-      <button class="add-btn" id="add-btn" onclick="addEntry()">Добавить</button>
+    </div>
+    <div class="project-card">
+      <div class="project-head"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="path">project-3</span></div>
+      <div class="project-body">
+        <h3>[Название проекта 3]</h3>
+        <p>[Ещё один сильный кейс. Если проекта нет — сделай pet-project специально под вакансию].</p>
+        <div class="project-stack">
+          <span class="chip">typescript</span><span class="chip">aws</span>
+        </div>
+        <a class="project-link" href="[ссылка]">git clone →</a>
+      </div>
     </div>
   </div>
+</section>
 
-  <div class="filter-bar">
-    <button class="filter-btn active" onclick="setFilter('all', this)">Все</button>
-    <button class="filter-btn" onclick="setFilter('expense', this)">Расходы</button>
-    <button class="filter-btn" onclick="setFilter('income', this)">Доходы</button>
-    <button class="filter-btn" onclick="setFilter('Еда', this)">Еда</button>
-    <button class="filter-btn" onclick="setFilter('Транспорт', this)">Транспорт</button>
-    <button class="filter-btn" onclick="setFilter('Жильё', this)">Жильё</button>
-    <button class="filter-btn" onclick="setFilter('Развлечения', this)">Развлечения</button>
-  </div>
-
-  <div class="entries-card">
-    <div class="entries-header">
-      <span>Описание</span>
-      <span class="cat-col">Категория</span>
-      <span style="text-align:right;padding-right:0.5rem">Сумма</span>
-      <span></span>
+<section id="experience" class="container reveal">
+  <div class="section-tag">history</div>
+  <h2 class="section-title">Где я работал(а)</h2>
+  <p class="section-desc">Замени на реальные места работы, от последнего к первому.</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-period">[2024 — сейчас]</div>
+      <h3>[Должность]</h3>
+      <div class="company">[Компания]</div>
+      <ul>
+        <li>[Конкретное достижение с цифрой]</li>
+        <li>[Ещё одно измеримое достижение]</li>
+      </ul>
     </div>
-    <div class="total-sum"><span>Итого по фильтру</span><div class="entry-amount neg">-<span class="sum">0</span> ₽</div></div>
-    <div id="entries-list"><div class="empty">Загрузка...</div></div>
+    <div class="tl-item">
+      <div class="tl-period">[2022 — 2024]</div>
+      <h3>[Должность]</h3>
+      <div class="company">[Компания]</div>
+      <ul>
+        <li>[Что делал(а), какой был результат]</li>
+      </ul>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">[образование / курс]</div>
+      <h3>[Вуз / буткемп / самообразование]</h3>
+      <div class="company">[Название]</div>
+    </div>
   </div>
+</section>
 
-</div>
+<section id="contact" class="container reveal">
+  <div class="cta">
+    <h2>Готов(а) начать <span class="accent-text">на следующей неделе</span></h2>
+    <p>Если нужен человек, который берёт задачу и доводит до результата — напишите, обсудим детали.</p>
+    <a class="btn btn-primary" href="mailto:[email@example.com]">Написать мне →</a>
+    <div class="contact-links">
+      <a href="mailto:[email@example.com]">mail: [email@example.com]</a>
+      <a href="[https://t.me/username]">tg: [@username]</a>
+      <a href="[https://github.com/username]">github: [username]</a>
+      <a href="[https://linkedin.com/in/username]">linkedin: [username]</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © <span id="year"></span> [Твоё Имя]. exit code 0.
+</footer>
 
 <script>
-  const VALID_TOKEN = 'fox'; // ← поменяй на любую строку
-  const CAT_CLASS = {
-    'Еда': 'cat-food', 'Транспорт': 'cat-trans', 'Жильё': 'cat-home',
-    'Развлечения': 'cat-fun', 'Здоровье': 'cat-health', 'Прочее': 'cat-other'
-  };
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  const hasAccess = token === VALID_TOKEN;
-
-  if (hasAccess) {
-    document.getElementById('stub').remove();
-    document.getElementById('app').style.display = 'block';
-  } else {
-    document.getElementById('app').remove();
-  }
-
-  // ---- Захардкоженные демо-данные (пока без бэкенда) ----
-  let entries = [
-    { id: 1, desc: 'Зарплата', amount: 145000, date: '2026-07-01', cat: 'Прочее', type: 'income', method: 'Перевод' },
-    { id: 2, desc: 'Пятёрочка', amount: 2340, date: '2026-07-01', cat: 'Еда', type: 'expense', method: 'Карта' },
-    { id: 3, desc: 'Пятёрочка', amount: 1180, date: '2026-06-28', cat: 'Еда', type: 'expense', method: 'Карта' },
-    { id: 4, desc: 'Такси', amount: 560, date: '2026-06-30', cat: 'Транспорт', type: 'expense', method: 'Карта' },
-    { id: 5, desc: 'Такси', amount: 420, date: '2026-06-27', cat: 'Транспорт', type: 'expense', method: 'Наличные' },
-    { id: 6, desc: 'Аренда квартиры', amount: 38000, date: '2026-07-01', cat: 'Жильё', type: 'expense', method: 'Перевод' },
-    { id: 7, desc: 'Кинотеатр', amount: 1600, date: '2026-06-29', cat: 'Развлечения', type: 'expense', method: 'Карта' },
-    { id: 8, desc: 'Аптека', amount: 890, date: '2026-06-26', cat: 'Здоровье', type: 'expense', method: 'Наличные' },
-    { id: 9, desc: 'Фриланс проект', amount: 22000, date: '2026-06-25', cat: 'Прочее', type: 'income', method: 'Перевод' },
-    { id: 10, desc: 'Кофе', amount: 320, date: '2026-06-24', cat: 'Еда', type: 'expense', method: 'Карта' },
-  ];
-
-  let filter = 'all';
-  let currentType = 'expense';
-
-  const today = new Date();
-  document.getElementById('f-date').value = today.toISOString().split('T')[0];
-  document.getElementById('month-label').textContent = today.toLocaleString('ru', { month: 'long', year: 'numeric' });
-
-  function setStatus(msg, cls) {
-    const el = document.getElementById('save-status');
-    el.textContent = msg;
-    el.className = cls || '';
-  }
-
-  function setType(type) {
-    currentType = type;
-    document.getElementById('type-expense').classList.toggle('active', type === 'expense');
-    document.getElementById('type-income').classList.toggle('active', type === 'income');
-  }
-
-  function fmt(n) {
-    return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
-  }
-
-  function groupKey(e) {
-    return e.desc.toLowerCase() + '||' + e.cat + '||' + e.type;
-  }
-
-  function addEntry() {
-    const desc = document.getElementById('f-desc').value.trim();
-    const amount = parseFloat(document.getElementById('f-amount').value);
-    const date = document.getElementById('f-date').value;
-    const cat = document.getElementById('f-cat').value;
-    const method = document.getElementById('f-method').value;
-    if (!desc || !amount || amount <= 0 || !date) return;
-
-    entries.unshift({ id: Date.now(), desc, amount, date, cat, type: currentType, method });
-    render();
-
-    document.getElementById('f-desc').value = '';
-    document.getElementById('f-amount').value = '';
-    setStatus('Сохранено');
-    setTimeout(() => setStatus(''), 1500);
-  }
-
-  function deleteEntry(id) {
-    entries = entries.filter(e => e.id !== id);
-    render();
-  }
-
-  const expanded = new Set();
-
-  function toggleGroup(key) {
-    if (expanded.has(key)) expanded.delete(key);
-    else expanded.add(key);
-    render();
-  }
-
-  function setFilter(f, btn) {
-    filter = f;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
-  }
-
-  function render() {
-    const income  = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
-    const expense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
-    const balance = income - expense;
-
-    document.getElementById('s-income').textContent = fmt(income);
-    document.getElementById('s-expense').textContent = fmt(expense);
-    const balEl = document.getElementById('s-balance');
-    balEl.textContent = (balance < 0 ? '-' : '') + fmt(Math.abs(balance));
-    document.getElementById('s-balance-card').classList.toggle('neg', balance < 0);
-
-    let filtered = entries;
-    if (filter === 'expense') filtered = entries.filter(e => e.type === 'expense');
-    else if (filter === 'income') filtered = entries.filter(e => e.type === 'income');
-    else if (filter !== 'all') filtered = entries.filter(e => e.cat === filter);
-
-    const list = document.getElementById('entries-list');
-    if (filtered.length === 0) {
-      list.innerHTML = '<div class="empty">Записей нет</div>';
-      document.querySelector('.total-sum .sum').textContent = '0';
-      return;
-    }
-
-    const groupMap = new Map();
-    filtered.forEach(e => {
-      const key = groupKey(e);
-      if (!groupMap.has(key)) groupMap.set(key, []);
-      groupMap.get(key).push(e);
-    });
-
-    let html = '';
-    let totalAll = 0;
-    groupMap.forEach((items, key) => {
-      const first = items[0];
-      const total = items.reduce((s, e) => s + e.amount, 0);
-      totalAll += first.type === 'income' ? total : -total;
-      const isExpanded = expanded.has(key);
-      const multiple = items.length > 1;
-      const lastDate = items.reduce((latest, e) => e.date > latest ? e.date : latest, '');
-      const d = new Date(lastDate + 'T00:00:00');
-      const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-
-      html += `<div class="entry group-row ${multiple ? 'expandable' : ''}" ${multiple ? `onclick="toggleGroup('${key.replace(/'/g, "\\'")}')"` : ''}>
-        <div>
-          <div class="entry-desc">
-            ${multiple ? `<span class="expand-arrow">${isExpanded ? '▾' : '▸'}</span>` : ''}
-            ${first.desc}
-            ${multiple ? `<span class="count-badge"> · ${items.length}</span>` : ''}
-          </div>
-          <div class="entry-date">${dateStr}</div>
-        </div>
-        <div class="cat-col"><span class="cat-tag">${first.cat}</span></div>
-        <div class="entry-amount ${first.type === 'income' ? 'pos' : 'neg'}">
-          ${first.type === 'income' ? '+' : '-'}${fmt(total)}
-        </div>
-        ${multiple ? '<div></div>' : `<button class="del-btn" onclick="event.stopPropagation(); deleteEntry(${first.id})">×</button>`}
-      </div>`;
-
-      if (multiple && isExpanded) {
-        items.forEach(e => {
-          const sd = new Date(e.date + 'T00:00:00');
-          const sdStr = sd.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-          html += `<div class="entry sub-row">
-            <div>
-              <div class="entry-desc sub-desc">${sdStr} · ${e.method}</div>
-            </div>
-            <div class="cat-col"></div>
-            <div class="entry-amount ${e.type === 'income' ? 'pos' : 'neg'} sub-amount">
-              ${e.type === 'income' ? '+' : '-'}${fmt(e.amount)}
-            </div>
-            <button class="del-btn" onclick="event.stopPropagation(); deleteEntry(${e.id})">×</button>
-          </div>`;
-        });
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
       }
     });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
 
-    document.querySelector('.total-sum .entry-amount').className = 'entry-amount ' + (totalAll >= 0 ? 'pos' : 'neg');
-    document.querySelector('.total-sum .entry-amount').innerHTML = (totalAll >= 0 ? '+' : '-') + '<span class="sum">' + fmt(Math.abs(totalAll)).replace(' ₽','') + '</span> ₽';
-    list.innerHTML = html;
+  // ---- Matrix digital rain ----
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  const chars = '01アイウエオカキクケコサシスセソ<>{}[]/;=+-*#$&%'.split('');
+  let cols, drops;
+  const fontSize = 15;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols = Math.floor(canvas.width / fontSize);
+    drops = new Array(cols).fill(0).map(() => Math.random() * -100);
   }
 
-  document.getElementById('f-desc').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addEntry();
-  });
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = fontSize + 'px monospace';
 
-  render();
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+      const isHead = Math.random() > 0.92;
+      ctx.fillStyle = isHead ? '#c8ffdf' : 'rgba(57,255,143,0.55)';
+      ctx.fillText(char, x, y);
+
+      if (y > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  setInterval(draw, 45);
 </script>
-</div><!-- /app -->
 
 </body>
 </html>
