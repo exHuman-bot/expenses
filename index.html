@@ -3,85 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Саша какаша</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Бюджет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0e10;
-    --surface: #18181c;
-    --surface2: #222228;
-    --border: #2e2e36;
-    --accent: #c8f135;
-    --text: #f0f0f0;
-    --muted: #888;
-    --red: #ff5c5c;
-    --green: #c8f135;
-    --font-display: 'Unbounded', sans-serif;
-    --font-body: 'Onest', sans-serif;
+    --bg: #0a0a0c;
+    --surface: #131316;
+    --surface-2: #1a1a1f;
+    --surface-3: #212127;
+    --border: #26262d;
+    --border-soft: #1e1e24;
+    --text: #f4f4f5;
+    --muted: #8b8b95;
+    --muted-2: #55555f;
+    --accent: #7dffb3;
+    --accent-dim: rgba(125,255,179,0.12);
+    --red: #ff6b6b;
+    --red-dim: rgba(255,107,107,0.12);
+    --font: 'Inter', sans-serif;
+    --font-display: 'Manrope', sans-serif;
+    --radius: 18px;
+    --radius-sm: 12px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(125,255,179,0.06), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(125,255,179,0.04), transparent 55%),
+      var(--bg);
     color: var(--text);
-    font-family: var(--font-body);
+    font-family: var(--font);
     min-height: 100vh;
-    padding: 2rem 1rem 4rem;
+    padding: 3rem 1.25rem 5rem;
+    -webkit-font-smoothing: antialiased;
   }
 
+  ::selection { background: var(--accent-dim); color: var(--accent); }
+
+  /* ---------- Access stub ---------- */
   .stub {
-    min-height: 100vh;
+    position: relative;
+    min-height: calc(100vh - 8rem);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+  }
+
+  canvas#grid-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.08;
+  }
+
+  .stub-inner {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    gap: 1rem;
+    max-width: 420px;
     padding: 2rem;
   }
-  .total-sum {
-    border-bottom: 2px solid rebeccapurple;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    padding: 12px 41px;
-  }
-  .stub-icon { font-size: 3rem; opacity: 0.15; margin-bottom: 0.5rem; }
-  .stub h2 {
+
+  .stub-tag {
     font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 2.25rem;
+    text-transform: uppercase;
+  }
+
+  .stub-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.6rem, 9vw, 4.2rem);
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+
+  .stub-title .dim { color: var(--muted-2); }
+
+  .stub-rule {
+    width: 36px;
+    height: 2px;
+    background: var(--accent);
+    margin: 1.75rem auto;
+    border-radius: 2px;
+  }
+
+  .stub p {
+    font-size: 0.9rem;
     color: var(--muted);
+    line-height: 1.7;
   }
-  .stub p { font-size: 0.85rem; color: var(--muted); font-weight: 300; }
 
+  /* ---------- Layout ---------- */
   header {
-    max-width: 760px;
-    margin: 0 auto 2.5rem;
+    max-width: 880px;
+    margin: 0 auto 2.25rem;
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.9rem;
   }
 
-  header h1 {
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(150deg, var(--accent), #3fd68a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    color: #06120a;
+    font-size: 1.1rem;
+    flex-shrink: 0;
   }
 
-  header span {
+  header .titles h1 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  header .titles span {
     font-size: 0.8rem;
     color: var(--muted);
-    font-weight: 300;
+    text-transform: capitalize;
   }
 
   #save-status {
     margin-left: auto;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     transition: opacity 0.3s;
   }
 
@@ -89,117 +153,177 @@
   #save-status.error { color: var(--red); }
 
   .main {
-    max-width: 760px;
+    max-width: 880px;
     margin: 0 auto;
     display: grid;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
+  /* ---------- Stats ---------- */
   .stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border-radius: 16px;
-    overflow: hidden;
+    gap: 1rem;
   }
 
   .stat {
     background: var(--surface);
-    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    padding: 1.3rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.04;
   }
 
   .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.09em;
     color: var(--muted);
-    margin-bottom: 0.5rem;
-    font-weight: 500;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
   .stat-value {
     font-family: var(--font-display);
-    font-size: 1.4rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
   }
 
-  .stat-value.pos { color: var(--green); }
-  .stat-value.neg { color: var(--red); }
+  .stat.income .stat-value, .stat.income { color: var(--accent); }
+  .stat.expense .stat-value, .stat.expense { color: var(--red); }
+  .stat.balance .stat-value { color: var(--text); }
+  .stat.balance.neg .stat-value { color: var(--red); }
 
+  /* ---------- Form card ---------- */
   .form-card {
     background: var(--surface);
-    border-radius: 16px;
-    padding: 1.5rem;
-    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem;
+    border: 1px solid var(--border-soft);
+  }
+
+  .form-card-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
   .form-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    gap: 0.7rem;
+    margin-bottom: 0.7rem;
   }
 
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 0.75rem;
+    gap: 0.7rem;
     align-items: end;
   }
 
   .field label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
+    letter-spacing: 0.07em;
+    color: var(--muted-2);
     margin-bottom: 0.4rem;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .field input,
   .field select {
     width: 100%;
-    background: var(--surface2);
+    background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 0.6rem 0.9rem;
+    padding: 0.65rem 0.85rem;
     color: var(--text);
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    transition: border-color 0.15s;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    transition: border-color 0.15s, background 0.15s;
     -webkit-appearance: none;
   }
+
+  .field input::placeholder { color: var(--muted-2); }
 
   .field input:focus,
   .field select:focus {
     outline: none;
     border-color: var(--accent);
+    background: var(--surface-3);
   }
 
-  .field select option { background: var(--surface2); }
+  .field select option { background: var(--surface-2); }
+
+  .type-toggle {
+    display: flex;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+  }
+
+  .type-toggle button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 0.4rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .type-toggle button.active.expense { background: var(--red-dim); color: var(--red); }
+  .type-toggle button.active.income { background: var(--accent-dim); color: var(--accent); }
 
   .add-btn {
     background: var(--accent);
-    color: #111;
+    color: #06120a;
     border: none;
     border-radius: 10px;
-    padding: 0.65rem 1.4rem;
+    padding: 0 1.5rem;
+    height: 42px;
     font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.15s, transform 0.1s;
     letter-spacing: -0.01em;
   }
 
-  .add-btn:hover { background: #d4f84a; }
-  .add-btn:active { transform: scale(0.97); }
+  .add-btn:hover { background: #93ffc2; }
+  .add-btn:active { transform: scale(0.96); }
   .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  /* ---------- Filters ---------- */
   .filter-bar {
     display: flex;
     gap: 0.5rem;
@@ -208,52 +332,68 @@
 
   .filter-btn {
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-soft);
     border-radius: 20px;
-    padding: 0.35rem 1rem;
+    padding: 0.4rem 1rem;
     color: var(--muted);
-    font-family: var(--font-body);
-    font-size: 0.85rem;
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.15s;
   }
 
   .filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #111;
-    font-weight: 500;
+    background: var(--text);
+    border-color: var(--text);
+    color: #0a0a0c;
+    font-weight: 700;
   }
 
-  .filter-btn:hover:not(.active) { border-color: var(--muted); color: var(--text); }
+  .filter-btn:hover:not(.active) { border-color: var(--muted-2); color: var(--text); }
 
+  /* ---------- Entries ---------- */
   .entries-card {
     background: var(--surface);
-    border-radius: 16px;
-    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-soft);
     overflow: hidden;
   }
 
   .entries-header {
     display: grid;
-    grid-template-columns: 1fr 100px 110px 36px;
-    padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.7rem;
+    grid-template-columns: 1fr 120px 120px 36px;
+    padding: 0.85rem 1.4rem;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--muted);
-    font-weight: 500;
+    color: var(--muted-2);
+    font-weight: 700;
   }
+
+  .total-sum {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.4rem;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--surface-2);
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .total-sum .entry-amount { padding-right: 0; font-size: 1rem; }
 
   .entry {
     display: grid;
-    grid-template-columns: 1fr 100px 110px 36px;
-    padding: 0.9rem 1.25rem;
-    border-bottom: 1px solid var(--border);
+    grid-template-columns: 1fr 120px 120px 36px;
+    padding: 0.95rem 1.4rem;
+    border-bottom: 1px solid var(--border-soft);
     align-items: center;
     transition: background 0.12s;
-    animation: fadeIn 0.2s ease;
+    animation: fadeIn 0.25s ease;
   }
 
   @keyframes fadeIn {
@@ -262,30 +402,31 @@
   }
 
   .entry:last-child { border-bottom: none; }
-  .entry:hover { background: var(--surface2); }
+  .entry:hover { background: var(--surface-2); }
 
-  .entry-desc { font-weight: 500; font-size: 0.95rem; }
-  .entry-date { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .entry-desc { font-weight: 600; font-size: 0.93rem; display: flex; align-items: center; gap: 0.4rem; }
+  .entry-date { font-size: 0.76rem; color: var(--muted-2); margin-top: 3px; font-weight: 500; }
 
   .cat-tag {
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 2px 9px;
-    border-radius: 20px;
-    font-weight: 500;
-    letter-spacing: 0.03em;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
   }
+
+  .cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
   .entry-amount {
     font-family: var(--font-display);
     font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     text-align: right;
-    padding-right: 0.5rem;
+    padding-right: 0.6rem;
   }
 
-  .entry-amount.pos { color: var(--green); }
+  .entry-amount.pos { color: var(--accent); }
   .entry-amount.neg { color: var(--red); }
 
   .del-btn {
@@ -295,7 +436,7 @@
     border: 1px solid transparent;
     border-radius: 8px;
     cursor: pointer;
-    color: var(--muted);
+    color: var(--muted-2);
     font-size: 1.1rem;
     display: flex;
     align-items: center;
@@ -307,151 +448,111 @@
   .del-btn:hover {
     border-color: var(--red);
     color: var(--red);
-    background: rgba(255,92,92,0.08);
+    background: var(--red-dim);
   }
 
   .empty {
-    padding: 3rem;
+    padding: 3.5rem 2rem;
     text-align: center;
     color: var(--muted);
     font-size: 0.9rem;
-    font-weight: 300;
   }
 
-  .empty span { display: block; font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.4; }
+  .empty span { display: block; font-size: 1.8rem; margin-bottom: 0.6rem; opacity: 0.4; }
 
-  .cat-food   { background: rgba(200,241,53,0.12); color: #c8f135; }
-  .cat-trans  { background: rgba(96,165,250,0.12); color: #60a5fa; }
-  .cat-home   { background: rgba(167,139,250,0.12); color: #a78bfa; }
-  .cat-fun    { background: rgba(251,191,36,0.12); color: #fbbf24; }
-  .cat-health { background: rgba(52,211,153,0.12); color: #34d399; }
-  .cat-other  { background: rgba(148,163,184,0.12); color: #94a3b8; }
+  .cat-food   { color: #ffb454; }
+  .cat-trans  { color: #60a5fa; }
+  .cat-home   { color: #a78bfa; }
+  .cat-fun    { color: #f472b6; }
+  .cat-health { color: #34d399; }
+  .cat-other  { color: #9ca3af; }
 
   .expandable { cursor: pointer; }
-  .expandable:hover { background: var(--surface2); }
+  .expandable:hover { background: var(--surface-2); }
 
   .expand-arrow {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-right: 4px;
+    font-size: 0.65rem;
+    color: var(--muted-2);
     display: inline-block;
-    width: 12px;
+    width: 10px;
   }
 
   .count-badge {
     display: inline-block;
-    font-size: 0.65rem;
-    padding: 1px 6px;
+    font-size: 0.66rem;
+    padding: 1px 7px;
     border-radius: 10px;
-    background: var(--surface2);
+    background: var(--surface-3);
     color: var(--muted);
-    margin-left: 6px;
-    vertical-align: middle;
+    font-weight: 600;
     border: 1px solid var(--border);
   }
 
   .sub-row {
-    background: var(--surface2);
-    border-left: 2px solid var(--border);
+    background: var(--surface-2);
   }
 
-  .sub-row:hover { background: #26262e; }
+  .sub-row:hover { background: var(--surface-3); }
 
   .sub-desc {
-    font-size: 0.8rem !important;
+    font-size: 0.82rem !important;
     color: var(--muted) !important;
-    font-weight: 400 !important;
-    padding-left: 1.2rem;
+    font-weight: 500 !important;
+    padding-left: 1.3rem;
   }
 
   .sub-amount {
     font-size: 0.85rem !important;
-    opacity: 0.7;
+    opacity: 0.75;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 640px) {
+    body { padding: 1.5rem 0.9rem 4rem; }
     .form-grid { grid-template-columns: 1fr 1fr; }
     .form-row  { grid-template-columns: 1fr 1fr; }
-    .stats     { grid-template-columns: 1fr; }
+    .stats     { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    .stat { padding: 0.9rem 0.9rem; }
+    .stat-value { font-size: 1.1rem; }
     .entries-header { display: none; }
-    .entry { grid-template-columns: 1fr auto 32px; }
-    .entry-cat { display: none; }
+    .entry { grid-template-columns: 1fr auto 32px; padding: 0.85rem 1rem; }
+    .entry .cat-col { display: none; }
+    .total-sum { padding: 0.8rem 1rem; }
   }
 </style>
 </head>
 <body>
 
-<div class="stub" id="stub" style="position:relative; overflow:hidden; min-height:100vh; display:flex; align-items:center; justify-content:center;">
-
-  <!-- анимированная сетка на фоне -->
-  <canvas id="grid-canvas" style="position:absolute; inset:0; width:100%; height:100%; opacity:0.15;"></canvas>
-
-  <div style="position:relative; z-index:1; text-align:center; max-width:400px; padding: 2rem;">
-
-    <div style="font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 3rem; text-transform:uppercase;">
-      sys.error / 0x00000403
-    </div>
-
-    <div style="position:relative; margin-bottom: 2.5rem;">
-      <div style="font-family: var(--font-display); font-size: clamp(5rem, 18vw, 10rem); font-weight:700; letter-spacing:-0.06em; line-height:0.85; color: var(--text);">
-        НЕТ
-      </div>
-      <div style="font-family: var(--font-display); font-size: clamp(5rem, 18vw, 10rem); font-weight:700; letter-spacing:-0.06em; line-height:0.85; color: var(--accent); margin-top: -0.1em;">
-        ВХОДА
-      </div>
-    </div>
-
-    <div style="width: 40px; height: 1px; background: var(--border); margin: 0 auto 2rem;"></div>
-
-    <p style="font-size: 0.82rem; color: var(--muted); font-weight:300; line-height:1.8; letter-spacing:0.02em;">
-      Ты попал не туда.<br>
-      Или туда — но без ключа.<br>
-      <span style="color: var(--accent);">В любом случае: здесь ничего нет.</span>
-    </p>
-
-    <div style="margin-top: 3rem; font-family: var(--font-display); font-size: 0.6rem; color: var(--border); letter-spacing: 0.1em;">
-      UNAUTHORIZED · PRIVATE · RESTRICTED
-    </div>
+<div class="stub" id="stub">
+  <canvas id="grid-canvas"></canvas>
+  <div class="stub-inner">
+    <div class="stub-tag">access · restricted</div>
+    <div class="stub-title">НЕТ<br><span class="dim">ВХОДА</span></div>
+    <div class="stub-rule"></div>
+    <p>Ты попал не туда. Или туда — но без ключа.<br>В любом случае: здесь ничего нет.</p>
   </div>
-
   <script>
     const canvas = document.getElementById('grid-canvas');
     const ctx = canvas.getContext('2d');
     let t = 0;
-
-    function resize() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    }
-
+    function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const step = 40;
-      ctx.strokeStyle = '#c8f135';
+      const step = 44;
+      ctx.strokeStyle = '#7dffb3';
       ctx.lineWidth = 0.5;
-
       for (let x = 0; x < canvas.width + step; x += step) {
         const wave = Math.sin((x / canvas.width) * Math.PI * 2 + t) * 8;
-        ctx.globalAlpha = 0.3 + Math.sin(x * 0.05 + t) * 0.2;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x + wave, canvas.height);
-        ctx.stroke();
+        ctx.globalAlpha = 0.25 + Math.sin(x * 0.05 + t) * 0.15;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + wave, canvas.height); ctx.stroke();
       }
-
       for (let y = 0; y < canvas.height + step; y += step) {
         const wave = Math.sin((y / canvas.height) * Math.PI * 2 + t) * 8;
-        ctx.globalAlpha = 0.3 + Math.sin(y * 0.05 + t) * 0.2;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y + wave);
-        ctx.stroke();
+        ctx.globalAlpha = 0.25 + Math.sin(y * 0.05 + t) * 0.15;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y + wave); ctx.stroke();
       }
-
       t += 0.008;
       requestAnimationFrame(draw);
     }
-
     resize();
     window.addEventListener('resize', resize);
     draw();
@@ -461,29 +562,33 @@
 <div id="app" style="display:none">
 
 <header>
-  <h1>Саша  + Альюина = любовь</h1>
-  <span id="month-label"></span>
+  <div class="brand-mark">₽</div>
+  <div class="titles">
+    <h1>Саша + Альюина</h1>
+    <span id="month-label"></span>
+  </div>
   <span id="save-status"></span>
 </header>
 
 <div class="main">
 
   <div class="stats">
-    <div class="stat">
+    <div class="stat income">
       <div class="stat-label">Доходы</div>
-      <div class="stat-value pos" id="s-income">0 ₽</div>
+      <div class="stat-value" id="s-income">0 ₽</div>
     </div>
-    <div class="stat">
+    <div class="stat expense">
       <div class="stat-label">Расходы</div>
-      <div class="stat-value neg" id="s-expense">0 ₽</div>
+      <div class="stat-value" id="s-expense">0 ₽</div>
     </div>
-    <div class="stat">
+    <div class="stat balance" id="s-balance-card">
       <div class="stat-label">Баланс</div>
-      <div class="stat-value pos" id="s-balance">0 ₽</div>
+      <div class="stat-value" id="s-balance">0 ₽</div>
     </div>
   </div>
 
   <div class="form-card">
+    <div class="form-card-title">Новая запись</div>
     <div class="form-grid">
       <div class="field">
         <label>Описание</label>
@@ -512,10 +617,10 @@
       </div>
       <div class="field">
         <label>Тип</label>
-        <select id="f-type">
-          <option value="expense">Расход</option>
-          <option value="income">Доход</option>
-        </select>
+        <div class="type-toggle">
+          <button type="button" class="active expense" id="type-expense" onclick="setType('expense')">Расход</button>
+          <button type="button" class="income" id="type-income" onclick="setType('income')">Доход</button>
+        </div>
       </div>
       <div class="field">
         <label>Метод</label>
@@ -542,11 +647,11 @@
   <div class="entries-card">
     <div class="entries-header">
       <span>Описание</span>
-      <span>Категория</span>
-      <span style="text-align:right;padding-right:0.5rem">Сумма</span>
+      <span class="cat-col">Категория</span>
+      <span style="text-align:right;padding-right:0.6rem">Сумма</span>
       <span></span>
     </div>
-    <div class="total-sum">Суммарно <div class="entry-amount neg">-<span class="sum">0</span> ₽</div></div>
+    <div class="total-sum"><span>Итого по фильтру</span><div class="entry-amount neg">-<span class="sum">0</span> ₽</div></div>
     <div id="entries-list"><div class="empty"><span>○</span>Загрузка...</div></div>
   </div>
 
@@ -554,13 +659,11 @@
 
 <script>
   const VALID_TOKEN = 'fox'; // ← поменяй на любую строку
-  const API = 'api.php';
   const CAT_CLASS = {
     'Еда': 'cat-food', 'Транспорт': 'cat-trans', 'Жильё': 'cat-home',
     'Развлечения': 'cat-fun', 'Здоровье': 'cat-health', 'Прочее': 'cat-other'
   };
 
-  // Проверяем токен из URL (?token=...)
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
   const hasAccess = token === VALID_TOKEN;
@@ -572,9 +675,22 @@
     document.getElementById('app').remove();
   }
 
-  let entries = [];
+  // ---- Захардкоженные демо-данные (пока без бэкенда) ----
+  let entries = [
+    { id: 1, desc: 'Зарплата', amount: 145000, date: '2026-07-01', cat: 'Прочее', type: 'income', method: 'Перевод' },
+    { id: 2, desc: 'Пятёрочка', amount: 2340, date: '2026-07-01', cat: 'Еда', type: 'expense', method: 'Карта' },
+    { id: 3, desc: 'Пятёрочка', amount: 1180, date: '2026-06-28', cat: 'Еда', type: 'expense', method: 'Карта' },
+    { id: 4, desc: 'Такси', amount: 560, date: '2026-06-30', cat: 'Транспорт', type: 'expense', method: 'Карта' },
+    { id: 5, desc: 'Такси', amount: 420, date: '2026-06-27', cat: 'Транспорт', type: 'expense', method: 'Наличные' },
+    { id: 6, desc: 'Аренда квартиры', amount: 38000, date: '2026-07-01', cat: 'Жильё', type: 'expense', method: 'Перевод' },
+    { id: 7, desc: 'Кинотеатр', amount: 1600, date: '2026-06-29', cat: 'Развлечения', type: 'expense', method: 'Карта' },
+    { id: 8, desc: 'Аптека', amount: 890, date: '2026-06-26', cat: 'Здоровье', type: 'expense', method: 'Наличные' },
+    { id: 9, desc: 'Фриланс проект', amount: 22000, date: '2026-06-25', cat: 'Прочее', type: 'income', method: 'Перевод' },
+    { id: 10, desc: 'Кофе', amount: 320, date: '2026-06-24', cat: 'Еда', type: 'expense', method: 'Карта' },
+  ];
+
   let filter = 'all';
-  let saveTimer = null;
+  let currentType = 'expense';
 
   const today = new Date();
   document.getElementById('f-date').value = today.toISOString().split('T')[0];
@@ -586,32 +702,10 @@
     el.className = cls || '';
   }
 
-  async function loadEntries() {
-    if (!hasAccess) return;
-    try {
-      const res = await fetch(API + '?token=' + token);
-      entries = await res.json();
-      render();
-    } catch (e) {
-      setStatus('Ошибка загрузки', 'error');
-      render();
-    }
-  }
-
-  async function saveEntries() {
-    if (!hasAccess) return;
-    setStatus('Сохранение...', 'saving');
-    try {
-      await fetch(API + '?token=' + token, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entries)
-      });
-      setStatus('Сохранено ✓');
-      setTimeout(() => setStatus(''), 2000);
-    } catch (e) {
-      setStatus('Ошибка сохранения', 'error');
-    }
+  function setType(type) {
+    currentType = type;
+    document.getElementById('type-expense').classList.toggle('active', type === 'expense');
+    document.getElementById('type-income').classList.toggle('active', type === 'income');
   }
 
   function fmt(n) {
@@ -622,36 +716,28 @@
     return e.desc.toLowerCase() + '||' + e.cat + '||' + e.type;
   }
 
-  async function addEntry() {
+  function addEntry() {
     const desc = document.getElementById('f-desc').value.trim();
     const amount = parseFloat(document.getElementById('f-amount').value);
     const date = document.getElementById('f-date').value;
     const cat = document.getElementById('f-cat').value;
-    const type = document.getElementById('f-type').value;
     const method = document.getElementById('f-method').value;
     if (!desc || !amount || amount <= 0 || !date) return;
 
-    const btn = document.getElementById('add-btn');
-    btn.disabled = true;
-
-    // Каждая запись хранится отдельно
-    entries.unshift({ id: Date.now(), desc, amount, date, cat, type, method });
-
+    entries.unshift({ id: Date.now(), desc, amount, date, cat, type: currentType, method });
     render();
-    await saveEntries();
 
     document.getElementById('f-desc').value = '';
     document.getElementById('f-amount').value = '';
-    btn.disabled = false;
+    setStatus('Сохранено ✓');
+    setTimeout(() => setStatus(''), 1500);
   }
 
-  async function deleteEntry(id) {
+  function deleteEntry(id) {
     entries = entries.filter(e => e.id !== id);
     render();
-    await saveEntries();
   }
 
-  // Запоминаем какие группы раскрыты
   const expanded = new Set();
 
   function toggleGroup(key) {
@@ -676,7 +762,7 @@
     document.getElementById('s-expense').textContent = fmt(expense);
     const balEl = document.getElementById('s-balance');
     balEl.textContent = (balance < 0 ? '-' : '') + fmt(Math.abs(balance));
-    balEl.className = 'stat-value ' + (balance >= 0 ? 'pos' : 'neg');
+    document.getElementById('s-balance-card').classList.toggle('neg', balance < 0);
 
     let filtered = entries;
     if (filter === 'expense') filtered = entries.filter(e => e.type === 'expense');
@@ -686,10 +772,10 @@
     const list = document.getElementById('entries-list');
     if (filtered.length === 0) {
       list.innerHTML = '<div class="empty"><span>○</span>Записей нет</div>';
+      document.querySelector('.total-sum .sum').textContent = '0';
       return;
     }
 
-    // Группируем
     const groupMap = new Map();
     filtered.forEach(e => {
       const key = groupKey(e);
@@ -702,7 +788,7 @@
     groupMap.forEach((items, key) => {
       const first = items[0];
       const total = items.reduce((s, e) => s + e.amount, 0);
-      totalAll += total;
+      totalAll += first.type === 'income' ? total : -total;
       const catClass = CAT_CLASS[first.cat] || 'cat-other';
       const isExpanded = expanded.has(key);
       const multiple = items.length > 1;
@@ -710,24 +796,22 @@
       const d = new Date(lastDate + 'T00:00:00');
       const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 
-      // Строка группы
       html += `<div class="entry group-row ${multiple ? 'expandable' : ''}" ${multiple ? `onclick="toggleGroup('${key.replace(/'/g, "\\'")}')"` : ''}>
         <div>
           <div class="entry-desc">
             ${multiple ? `<span class="expand-arrow">${isExpanded ? '▾' : '▸'}</span>` : ''}
             ${first.desc}
-            ${multiple ? `<span class="count-badge">${items.length}</span>` : ''}
+            ${multiple ? `<span class="count-badge">${items.length}×</span>` : ''}
           </div>
           <div class="entry-date">${dateStr}</div>
         </div>
-        <div><span class="cat-tag ${catClass}">${first.cat}</span></div>
+        <div class="cat-col"><span class="cat-tag ${catClass}"><span class="cat-dot" style="background:currentColor"></span>${first.cat}</span></div>
         <div class="entry-amount ${first.type === 'income' ? 'pos' : 'neg'}">
           ${first.type === 'income' ? '+' : '-'}${fmt(total)}
         </div>
-        <div></div>
+        ${multiple ? '<div></div>' : `<button class="del-btn" onclick="event.stopPropagation(); deleteEntry(${first.id})">×</button>`}
       </div>`;
 
-      // Подстроки если раскрыто
       if (multiple && isExpanded) {
         items.forEach(e => {
           const sd = new Date(e.date + 'T00:00:00');
@@ -736,7 +820,7 @@
             <div>
               <div class="entry-desc sub-desc">${sdStr} · ${e.method}</div>
             </div>
-            <div></div>
+            <div class="cat-col"></div>
             <div class="entry-amount ${e.type === 'income' ? 'pos' : 'neg'} sub-amount">
               ${e.type === 'income' ? '+' : '-'}${fmt(e.amount)}
             </div>
@@ -744,16 +828,11 @@
           </div>`;
         });
       }
-
-      // Если одна запись — кнопка удаления на самой строке
-      if (!multiple) {
-        const e = items[0];
-        // Заменяем пустой последний div на кнопку
-        html = html.replace(/<div><\/div>\n      <\/div>$/, `<button class="del-btn" onclick="deleteEntry(${e.id})">×</button>\n      </div>`);
-      }
     });
-  console.log(totalAll)
-    document.querySelector('.total-sum .sum').textContent = totalAll;
+
+    document.querySelector('.total-sum .sum').textContent = fmt(Math.abs(totalAll)).replace(' ₽','');
+    document.querySelector('.total-sum .entry-amount').className = 'entry-amount ' + (totalAll >= 0 ? 'pos' : 'neg');
+    document.querySelector('.total-sum .entry-amount').innerHTML = (totalAll >= 0 ? '+' : '-') + '<span class="sum">' + fmt(Math.abs(totalAll)).replace(' ₽','') + '</span> ₽';
     list.innerHTML = html;
   }
 
@@ -761,7 +840,7 @@
     if (e.key === 'Enter') addEntry();
   });
 
-  loadEntries();
+  render();
 </script>
 </div><!-- /app -->
 
