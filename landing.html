@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[Твоё Имя] — Software Engineer</title>
+<meta name="description" content="[Твоё Имя] — разработчик. Портфолио, опыт, проекты.">
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-2: #111111;
+    --border: #262626;
+    --border-2: #3a3a3a;
+    --text: #e8e8e8;
+    --muted: #7a7a7a;
+    --muted-2: #4a4a4a;
+    --accent: #39ff8f;
+    --accent-dim: #1f8a52;
+    --font: 'JetBrains Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: #000; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .container { max-width: 1040px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ---------- Matrix rain background ---------- */
+  #matrix {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    opacity: 0.5;
+  }
+
+  .noise-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.15) 0px,
+      rgba(0,0,0,0.15) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+  }
+
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 0%, transparent 30%, #000 92%);
+    pointer-events: none;
+  }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.75);
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+  }
+
+  .logo {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.01em;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .nav-links a::before { content: '#'; color: var(--accent); margin-right: 0.2rem; }
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    padding: 0.5rem 1.2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .nav-cta:hover { background: var(--accent); color: #000; }
+
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 6rem 0 5rem;
+  }
+
+  .terminal {
+    border: 1px solid var(--border-2);
+    background: rgba(10,10,10,0.85);
+    max-width: 640px;
+    margin: 0 auto 3rem;
+    box-shadow: 0 0 60px -20px rgba(57,255,143,0.15);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .terminal-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--muted-2);
+  }
+
+  .terminal-title {
+    margin-left: 0.6rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .terminal-body {
+    padding: 1.3rem 1.5rem 1.6rem;
+    font-size: 0.88rem;
+  }
+
+  .terminal-line { color: var(--muted); margin-bottom: 0.5rem; }
+  .terminal-line .prompt { color: var(--accent); }
+  .terminal-out { color: var(--text); margin-bottom: 0.9rem; padding-left: 1.1rem; }
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1em;
+    background: var(--accent);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hero-title {
+    text-align: center;
+    font-size: clamp(2rem, 5.5vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-title .accent-text { color: var(--accent); }
+
+  .hero-sub {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 2.4rem;
+    color: var(--muted);
+    font-size: 0.98rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+  }
+
+  .btn {
+    padding: 0.85rem 1.7rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    border-radius: 0;
+    font-family: var(--font);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    border: 1px solid var(--accent);
+  }
+
+  .btn-primary:hover { background: transparent; color: var(--accent); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-2);
+  }
+
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border: 1px solid var(--border);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .hero-stat {
+    flex: 1;
+    text-align: center;
+    padding: 1.1rem 0.5rem;
+    border-left: 1px solid var(--border);
+  }
+
+  .hero-stat:first-child { border-left: none; }
+
+  .hero-stat .num {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .hero-stat .lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  /* ---------- Section shared ---------- */
+  section { padding: 5rem 0; }
+
+  .section-tag {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.6rem;
+  }
+
+  .section-tag::before { content: '// '; color: var(--muted-2); }
+
+  .section-title {
+    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 3rem;
+    font-size: 0.92rem;
+  }
+
+  /* ---------- Skills ---------- */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .skill-card {
+    background: var(--surface);
+    padding: 1.4rem;
+    transition: background 0.2s;
+  }
+
+  .skill-card:hover { background: var(--surface-2); }
+
+  .skill-card .tag {
+    font-size: 0.72rem;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+    display: block;
+  }
+
+  .skill-card h3 { font-size: 1rem; margin-bottom: 0.5rem; font-weight: 600; }
+  .skill-card p { font-size: 0.82rem; color: var(--muted); }
+
+  /* ---------- Projects ---------- */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.2rem;
+  }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .project-card:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+
+  .project-head {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .project-head .terminal-dot { background: var(--muted-2); }
+  .project-head .path { margin-left: 0.5rem; font-size: 0.72rem; color: var(--muted); }
+
+  .project-body { padding: 1.3rem; display: flex; flex-direction: column; gap: 0.9rem; flex: 1; }
+
+  .project-card h3 { font-size: 1.05rem; }
+  .project-card h3::before { content: '$ '; color: var(--accent); }
+  .project-card p { color: var(--muted); font-size: 0.85rem; flex: 1; }
+
+  .project-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .chip {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.55rem;
+  }
+
+  .project-link {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .project-link:hover { text-decoration: underline; }
+
+  /* ---------- Timeline ---------- */
+  .timeline {
+    display: grid;
+    gap: 0;
+    border-left: 1px solid var(--border-2);
+    margin-left: 0.5rem;
+  }
+
+  .tl-item {
+    position: relative;
+    padding: 0 0 2.2rem 2rem;
+  }
+
+  .tl-item:last-child { padding-bottom: 0; }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--bg), 0 0 10px var(--accent);
+  }
+
+  .tl-period {
+    font-size: 0.76rem;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  .tl-item h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+  .tl-item .company { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .tl-item ul { padding-left: 1.1rem; color: var(--muted); font-size: 0.86rem; display: grid; gap: 0.3rem; }
+  .tl-item li::marker { color: var(--accent); }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    padding: 4rem 2rem;
+  }
+
+  .cta h2 {
+    font-size: clamp(1.6rem, 3.6vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .cta h2 .accent-text { color: var(--accent); }
+
+  .cta p { color: var(--muted); max-width: 480px; margin: 0 auto 2rem; font-size: 0.92rem; }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+
+  .contact-links a {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.55rem 1.1rem;
+    font-size: 0.84rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .contact-links a:hover { border-color: var(--accent); color: var(--accent); }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem 0;
+    color: var(--muted-2);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- Placeholder note (remove after editing) ---------- */
+  .edit-note {
+    max-width: 1040px;
+    margin: 1rem auto 0;
+    padding: 0.9rem 1.5rem;
+    background: var(--surface);
+    border: 1px dashed var(--muted-2);
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .edit-note b { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="noise-overlay"></div>
+<div class="vignette"></div>
+
+<div class="edit-note">
+  <b>//</b> Это шаблон. Замени все [плейсхолдеры] на свои данные (имя, стек, проекты, опыт, контакты) и удали этот блок перед публикацией.
+</div>
+
+<nav>
+  <div class="container">
+    <div class="logo">[имя]<span>@dev</span></div>
+    <div class="nav-links">
+      <a href="#skills">skills</a>
+      <a href="#projects">projects</a>
+      <a href="#experience">experience</a>
+      <a href="#contact">contact</a>
+    </div>
+    <a class="nav-cta" href="#contact">./hire_me</a>
+  </div>
+</nav>
+
+<header class="hero container">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
+      <span class="terminal-title">~/[имя]/whoami</span>
+    </div>
+    <div class="terminal-body">
+      <div class="terminal-line"><span class="prompt">$</span> whoami</div>
+      <div class="terminal-out">[Твоё Имя] — [Fullstack / Backend / Frontend] Engineer</div>
+      <div class="terminal-line"><span class="prompt">$</span> cat status.txt</div>
+      <div class="terminal-out">open_to_work: true<span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <h1 class="hero-title">Код, который<br>доезжает до <span class="accent-text">продакшена</span></h1>
+  <p class="hero-sub">[Стек, напр. Fullstack-разработчик]. Пишу быстрый, надёжный код без лишних слов. Ниже — что я уже сделал, и что могу сделать для вашей команды.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="#contact">Хочу нанять →</a>
+    <a class="btn btn-ghost" href="#projects">Смотреть проекты</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">[3+]</div><div class="lbl">года опыта</div></div>
+    <div class="hero-stat"><div class="num">[12]</div><div class="lbl">проектов в проде</div></div>
+    <div class="hero-stat"><div class="num">[0]</div><div class="lbl">пропущенных дедлайнов</div></div>
+  </div>
+</header>
+
+<section id="skills" class="container reveal">
+  <div class="section-tag">stack</div>
+  <h2 class="section-title">Технологии и сильные стороны</h2>
+  <p class="section-desc">Замени карточки на свои технологии — оставь только то, чем реально владеешь уверенно.</p>
+  <div class="skills-grid">
+    <div class="skill-card"><span class="tag">01</span><h3>[Frontend]</h3><p>[React, TypeScript, современный CSS — опиши уровень и подход]</p></div>
+    <div class="skill-card"><span class="tag">02</span><h3>[Backend]</h3><p>[Node.js / Python / Go — API, базы данных, интеграции]</p></div>
+    <div class="skill-card"><span class="tag">03</span><h3>[Инфраструктура]</h3><p>[Docker, CI/CD, облако — что настраивал(а) сам(а)]</p></div>
+    <div class="skill-card"><span class="tag">04</span><h3>[Архитектура]</h3><p>[Проектирование систем, паттерны, масштабирование]</p></div>
+    <div class="skill-card"><span class="tag">05</span><h3>[Продукт]</h3><p>[Работа с требованиями, коммуникация с бизнесом]</p></div>
+    <div class="skill-card"><span class="tag">06</span><h3>[Ещё сильная сторона]</h3><p>[То, что выделяет тебя среди других кандидатов]</p></div>
+  </div>
+</section>
+
+<section id="projects" class="container reveal">
+  <div class="section-tag">portfolio</div>
+  <h2 class="section-title">Проекты, которыми горжусь</h2>
+  <p class="section-desc">Замени на реальные кейсы: задача, вклад, результат в цифрах.</p>
+  <div class="projects-grid">
+    <div class="project-card">
+      <div class="project-head"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="path">project-1</span></div>
+      <div class="project-body">
+        <h3>[Название проекта 1]</h3>
+        <p>[Кратко: какую проблему решал проект и в чём был твой вклад. Идеально — с результатом: "сократил время загрузки на 40%"].</p>
+        <div class="project-stack">
+          <span class="chip">react</span><span class="chip">node.js</span><span class="chip">postgres</span>
+        </div>
+        <a class="project-link" href="[ссылка на GitHub/демо]">git clone →</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-head"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="path">project-2</span></div>
+      <div class="project-body">
+        <h3>[Название проекта 2]</h3>
+        <p>[Опиши задачу, роль и измеримый результат — рекрутёры любят цифры].</p>
+        <div class="project-stack">
+          <span class="chip">python</span><span class="chip">fastapi</span><span class="chip">docker</span>
+        </div>
+        <a class="project-link" href="[ссылка]">git clone →</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-head"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="path">project-3</span></div>
+      <div class="project-body">
+        <h3>[Название проекта 3]</h3>
+        <p>[Ещё один сильный кейс. Если проекта нет — сделай pet-project специально под вакансию].</p>
+        <div class="project-stack">
+          <span class="chip">typescript</span><span class="chip">aws</span>
+        </div>
+        <a class="project-link" href="[ссылка]">git clone →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience" class="container reveal">
+  <div class="section-tag">history</div>
+  <h2 class="section-title">Где я работал(а)</h2>
+  <p class="section-desc">Замени на реальные места работы, от последнего к первому.</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-period">[2024 — сейчас]</div>
+      <h3>[Должность]</h3>
+      <div class="company">[Компания]</div>
+      <ul>
+        <li>[Конкретное достижение с цифрой]</li>
+        <li>[Ещё одно измеримое достижение]</li>
+      </ul>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">[2022 — 2024]</div>
+      <h3>[Должность]</h3>
+      <div class="company">[Компания]</div>
+      <ul>
+        <li>[Что делал(а), какой был результат]</li>
+      </ul>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">[образование / курс]</div>
+      <h3>[Вуз / буткемп / самообразование]</h3>
+      <div class="company">[Название]</div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="container reveal">
+  <div class="cta">
+    <h2>Готов(а) начать <span class="accent-text">на следующей неделе</span></h2>
+    <p>Если нужен человек, который берёт задачу и доводит до результата — напишите, обсудим детали.</p>
+    <a class="btn btn-primary" href="mailto:[email@example.com]">Написать мне →</a>
+    <div class="contact-links">
+      <a href="mailto:[email@example.com]">mail: [email@example.com]</a>
+      <a href="[https://t.me/username]">tg: [@username]</a>
+      <a href="[https://github.com/username]">github: [username]</a>
+      <a href="[https://linkedin.com/in/username]">linkedin: [username]</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © <span id="year"></span> [Твоё Имя]. exit code 0.
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+
+  // ---- Matrix digital rain ----
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  const chars = '01アイウエオカキクケコサシスセソ<>{}[]/;=+-*#$&%'.split('');
+  let cols, drops;
+  const fontSize = 15;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols = Math.floor(canvas.width / fontSize);
+    drops = new Array(cols).fill(0).map(() => Math.random() * -100);
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+      const isHead = Math.random() > 0.92;
+      ctx.fillStyle = isHead ? '#c8ffdf' : 'rgba(57,255,143,0.55)';
+      ctx.fillText(char, x, y);
+
+      if (y > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  setInterval(draw, 45);
+</script>
+
+</body>
+</html>
